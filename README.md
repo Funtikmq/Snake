@@ -1,1 +1,1 @@
-First Phase:Functionality
+Snake Game on Java,Simple Version
