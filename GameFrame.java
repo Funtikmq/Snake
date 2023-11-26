@@ -3,6 +3,9 @@ import javax.swing.*;
 public class GameFrame extends JFrame {
 
     GameFrame(){
+        ImageIcon icon = new ImageIcon("logo.png");
+
+        this.setIconImage(icon.getImage());
         this.add(new GamePanel());
         this.setTitle("Snake");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

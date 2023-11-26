@@ -1,18 +1,23 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.util.Random;
+
 
 public class GamePanel extends JPanel implements ActionListener{
 
 
-    ImageIcon apple = new ImageIcon("apple.png");
+    Image apple = new ImageIcon("apple.png").getImage();
+    Image background = new ImageIcon("background.jpg").getImage();
+
 
     static final int SCREEN_WIDTH = 600;
     static final int SCREEN_HEIGHT = 600;
-    static final int UNIT_SIZE=60;
+    static final int UNIT_SIZE=25;
     static final int GAME_UNITS =(SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
-    static final int DELAY=150;
+    static final int DELAY=75;
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
     int bodyPart=6;
@@ -26,7 +31,7 @@ public class GamePanel extends JPanel implements ActionListener{
     GamePanel(){
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));
-        this.setBackground(Color.PINK);
+        this.setBackground(new Color(213, 185, 131));
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
 
@@ -49,33 +54,50 @@ public class GamePanel extends JPanel implements ActionListener{
             g.setColor(Color.white);
             g.setFont(new Font("Consolas",Font.BOLD,35));
             FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString("Score: "+applesEaten,(SCREEN_WIDTH-metrics.stringWidth("Score: "+applesEaten))/2,g.getFont().getSize());
-            for(int i=0;i<SCREEN_HEIGHT/UNIT_SIZE;i++){
-                g.drawLine(i*UNIT_SIZE,0,i*UNIT_SIZE,SCREEN_HEIGHT);
-            }
-            for(int i=0;i<SCREEN_WIDTH/UNIT_SIZE;i++){
-                g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
-            }
-            apple.paintIcon(null,g,appleX,appleY);
+            g.drawImage(background,0,0,null);
+            // Matrix as a option for background design
+//            for(int i=0;i<SCREEN_HEIGHT/UNIT_SIZE;i++){
+//                g.drawLine(i*UNIT_SIZE,0,i*UNIT_SIZE,SCREEN_HEIGHT);
+//            }
+//            for(int i=0;i<SCREEN_WIDTH/UNIT_SIZE;i++){
+//                g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
+//            }
+            g.drawImage(apple,appleX,appleY,null);
 
             for(int i=0;i<bodyPart;i++){
                 if(i==0){
-                    g.setColor(new Color(23, 241, 9));
+                    g.setColor(new Color(255,255,255));
                     g.fillRect(x[i],y[i],UNIT_SIZE-1,UNIT_SIZE-1);
                 }
                 else {
-                    g.setColor(new Color(92, 204, 85));
+                    g.setColor(new Color(0, 0, 0));
                     g.fillRect(x[i],y[i],UNIT_SIZE-1,UNIT_SIZE-1);
                 }
             }
+            g.setColor(Color.white);
+            g.drawString("Score: "+applesEaten,(SCREEN_WIDTH-metrics.stringWidth("Score: "+applesEaten))/2,g.getFont().getSize());
         }
         else {
             gameOver(g);
         }
     }
     public void newApple(){
-        appleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
-        appleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
+        boolean appleOnSnake = true;
+
+        while (appleOnSnake){
+            appleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+            appleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
+
+            appleOnSnake=false;
+            for(int i=0;i<bodyPart;i++){
+                if((x[i]==appleX)&&(y[i]==appleY))
+                {
+                    appleOnSnake=true;
+                    break;
+                }
+            }
+        }
+
     }
     public void move(){
         for(int i=bodyPart;i>0;i--){
@@ -85,12 +107,22 @@ public class GamePanel extends JPanel implements ActionListener{
         switch (direction){
             case 'U':y[0] = y[0] - UNIT_SIZE;
             break;
-            case 'D':y[0] = y[0] + UNIT_SIZE;
+            case 'B':y[0] = y[0] + UNIT_SIZE;
             break;
             case 'L':x[0] = x[0]-UNIT_SIZE;
             break;
             case 'R':x[0] = x[0]+UNIT_SIZE;
         }
+        switch (direction){
+            case 'W':y[0] = y[0] - UNIT_SIZE;
+                break;
+            case 'S':y[0] = y[0] + UNIT_SIZE;
+                break;
+            case 'A':x[0] = x[0]-UNIT_SIZE;
+                break;
+            case 'D':x[0] = x[0]+UNIT_SIZE;
+        }
+
     }
     public void checkApple(){
         if((x[0]==appleX)&&(y[0]==appleY)){
@@ -100,7 +132,7 @@ public class GamePanel extends JPanel implements ActionListener{
         }
     }
     public void checkCollisions(){
-        // Check if Head Colides with body
+        // Check if Head Colises with body
         for(int i=bodyPart;i>0;i--){
             if((x[0]==x[i])&&(y[0]==y[i])){
                 running=false;
@@ -111,11 +143,11 @@ public class GamePanel extends JPanel implements ActionListener{
             running=false;
         }
         //Check if Head Touches Right Border
-        if(x[0]>SCREEN_WIDTH){
+        if(x[0]>=SCREEN_WIDTH){
             running=false;
         }
         //Check if Head Touches Bottom Border
-        if(y[0]>SCREEN_HEIGHT){
+        if(y[0]>=SCREEN_HEIGHT){
             running=false;
         }//Check if Head Touches Top Border
         if(y[0]<0){
@@ -129,7 +161,7 @@ public class GamePanel extends JPanel implements ActionListener{
     }
     public void gameOver(Graphics g){
         //Game Over Text
-        g.setColor(Color.RED);
+        g.setColor(Color.WHITE);
         g.setFont(new Font("Consolas",Font.BOLD,75));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
         g.drawString("Game Over",(SCREEN_WIDTH-metrics1.stringWidth("Game Over"))/2,SCREEN_HEIGHT/4);
@@ -137,7 +169,25 @@ public class GamePanel extends JPanel implements ActionListener{
         g.setFont(new Font("Consolas",Font.BOLD,35));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Score: "+applesEaten,(SCREEN_WIDTH-metrics2.stringWidth("Score: "+applesEaten))/2,SCREEN_HEIGHT/3);
+        g.drawString("Press Space To Restart",(SCREEN_WIDTH-metrics2.stringWidth("Press Space To Restart"))/2,SCREEN_HEIGHT/2);
     }
+
+
+    public void restartGame(){
+        running=false;
+        bodyPart=6;
+        applesEaten=0;
+        direction='R';
+        newApple();
+        for(int i=0;i<bodyPart;i++){
+            x[i]=0;
+            y[i]=0;
+        }
+        running=true;
+        timer.start();
+        repaint();
+    }
+
 
 
     @Override
@@ -149,7 +199,6 @@ public class GamePanel extends JPanel implements ActionListener{
         }
         repaint();
     }
-
 
 
     public class MyKeyAdapter extends KeyAdapter {
@@ -167,16 +216,46 @@ public class GamePanel extends JPanel implements ActionListener{
                     }
                     break;
                 case KeyEvent.VK_UP:
-                    if(direction != 'D'){
+                    if(direction != 'B'){
                         direction='U';
                     }
                     break;
                 case KeyEvent.VK_DOWN:
                     if(direction != 'U'){
-                        direction='D';
+                        direction='B';
+                    }
+                    break;
+                case KeyEvent.VK_SPACE:
+                    if(!running){
+                        restartGame();
                     }
                     break;
             }
+            }
+            public void keyTyped(KeyEvent e){
+            char c = Character.toUpperCase(e.getKeyChar());
+                switch (c){
+                    case 'W':
+                        if(direction!='S'){
+                            direction='W';
+                        }
+                        break;
+                    case 'S':
+                        if(direction!='W'){
+                            direction='S';
+                        }
+                        break;
+                    case 'A':
+                        if (direction!='D'){
+                            direction='A';
+                        }
+                        break;
+                    case 'D':
+                        if (direction!='A'){
+                            direction='D';
+                        }
+                }
+            }
         }
     }
-}
+
