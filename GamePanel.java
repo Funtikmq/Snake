@@ -9,8 +9,8 @@ import java.util.Random;
 public class GamePanel extends JPanel implements ActionListener{
 
 
-    Image apple = new ImageIcon("apple.png").getImage();
-    Image background = new ImageIcon("background.jpg").getImage();
+    Image apple = new ImageIcon("images\\apple.png").getImage();
+    Image background = new ImageIcon("images\\background.jpg").getImage();
 
 
     static final int SCREEN_WIDTH = 600;

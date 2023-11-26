@@ -3,7 +3,7 @@ import javax.swing.*;
 public class GameFrame extends JFrame {
 
     GameFrame(){
-        ImageIcon icon = new ImageIcon("logo.png");
+        ImageIcon icon = new ImageIcon("images\\logo.png");
 
         this.setIconImage(icon.getImage());
         this.add(new GamePanel());
