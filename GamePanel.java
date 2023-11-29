@@ -43,6 +43,7 @@ public class GamePanel extends JPanel implements ActionListener{
     private int appleX;
     private int appleY;
     private char direction = 'R';
+    private boolean checkTimer = true;
     private boolean running =false;
     Timer timer;
     Random random;
@@ -308,6 +309,17 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_SPACE:
                     if(!running){
                         restartGame();
+                    }
+                    break;
+                case 80 :
+                    if(checkTimer)
+                    {
+                        timer.stop();
+                        checkTimer=false;
+                    }
+                    else {
+                        timer.start();
+                        checkTimer=true;
                     }
                     break;
             }
